@@ -8,8 +8,7 @@ export const Calculator = () => {
 
   const [example, setExample] = useState("");
   const [operation, setOperation] = useState("");
-  const [num, setNum] = useState("");
-  const [total, setTotal] = useState("");
+  const [total, setTotal] = useState(0);
 
   const checkLastSymbol = (symbol) => {
     const index = mathSymbols.findIndex((el) => el === example.at(-1));
@@ -17,42 +16,84 @@ export const Calculator = () => {
     if (index !== -1) {
       setExample((prevExample) => prevExample.slice(0, -1) + symbol);
     } else {
-      setExample((prevExample) => prevExample + symbol);
+      setExample((prevExample) => prevExample + " " + symbol);
     }
   };
 
-  const handleClick = (symbol) => {
+  const handleClick = (symbol, obj = null) => {
     switch (symbol) {
       case "/": {
-        checkLastSymbol(symbol);
+        if (obj) {
+          return +obj.sum / +(obj.num || 1);
+        } else {
+          checkLastSymbol(symbol);
+          setOperation(symbol);
+        }
         break;
       }
       case "*": {
-        checkLastSymbol(symbol);
+        if (obj) {
+          return +obj.sum * +(obj.num || 1);
+        } else {
+          checkLastSymbol(symbol);
+          setOperation(symbol);
+        }
         break;
       }
       case "-": {
-        checkLastSymbol(symbol);
+        if (obj) {
+          return +obj.sum - +(obj.num || 0);
+        } else {
+          checkLastSymbol(symbol);
+          setOperation(symbol);
+        }
         break;
       }
       case "+": {
-        checkLastSymbol(symbol);
+        if (obj) {
+          return +obj.sum + +(obj.num || 0);
+        } else {
+          checkLastSymbol(symbol);
+          setOperation(symbol);
+        }
         break;
       }
       case "=": {
+        console.log("-------------------------------------------");
+        const exampleArray = example.split(" ");
+        let sum = +exampleArray[0];
+
+        console.log(exampleArray);
+
+        for (let i = 0; i < exampleArray.length; i++) {
+          console.log(exampleArray[i + 1], {sum, num: exampleArray[i + 2]});
+          if (!exampleArray[i + 1]) return setTotal(sum);
+          sum = handleClick(exampleArray[i + 1], {sum, num: exampleArray[i + 2]});
+          i++;
+        }
+
+        setTotal(sum);
+        setExample("");
         break;
       }
       case "AC": {
+        setExample("");
+        setOperation("");
+        setTotal(0);
+        console.clear();
         break;
       }
       case "%": {
+        setExample((prevExample) => prevExample + symbol);
         break;
       }
       case "DEL": {
+        setExample((prevExample) => prevExample.slice(0, -1));
         break;
       }
       default: {
-        setExample((prevExample) => prevExample + symbol);
+        setExample((prevExample) => !operation ? prevExample + symbol : prevExample + " " + symbol);
+        setOperation("");
         break;
       }
     }
