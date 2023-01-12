@@ -26,10 +26,10 @@ export const Calculator = () => {
         if (obj) {
           if (obj.sum.toString().slice(-1) === "%") {
             return (+obj.sum.slice(0 ,-1) / 100) / +(obj.num || 0);
-          } else if (obj.num.slice(-1) === "%") {
+          } else if (obj?.num?.slice(-1) === "%") {
             return +obj.sum / (+(obj.num.slice(0, -1) || 0) / 100);
           } else {
-            return +obj.sum / +(obj.num || 0);
+            return +obj.sum / +(obj.num || 1);
           }
         } else {
           checkLastSymbol(symbol);
@@ -41,10 +41,10 @@ export const Calculator = () => {
         if (obj) {
           if (obj.sum.toString().slice(-1) === "%") {
             return (+obj.sum.slice(0 ,-1) / 100) * +(obj.num || 0);
-          } else if (obj.num.slice(-1) === "%") {
+          } else if (obj?.num?.slice(-1) === "%") {
             return +obj.sum * (+(obj.num.slice(0, -1) || 0) / 100);
           } else {
-            return +obj.sum * +(obj.num || 0);
+            return +obj.sum * +(obj.num || 1);
           }
         } else {
           checkLastSymbol(symbol);
@@ -56,7 +56,7 @@ export const Calculator = () => {
         if (obj) {
           if (obj.sum.toString().slice(-1) === "%") {
             return (+obj.sum.slice(0 ,-1) * obj.num / 100) - +(obj.num || 0);
-          } else if (obj.num.slice(-1) === "%") {
+          } else if (obj?.num?.slice(-1) === "%") {
             return +obj.sum - (+(obj.num.slice(0, -1) || 0) * obj.sum / 100);
           } else {
             return +obj.sum - +(obj.num || 0);
@@ -71,7 +71,7 @@ export const Calculator = () => {
         if (obj) {
           if (obj.sum.toString().slice(-1) === "%") {
             return (+obj.sum.slice(0 ,-1) * obj.num / 100) + +(obj.num || 0);
-          } else if (obj.num.slice(-1) === "%") {
+          } else if (obj?.num?.slice(-1) === "%") {
             return +obj.sum + (+(obj.num.slice(0, -1) || 0) * obj.sum / 100);
           } else {
             return +obj.sum + +(obj.num || 0);
@@ -86,25 +86,28 @@ export const Calculator = () => {
         console.log("-------------------------------------------");
         const exampleArray = example.split(" ");
         let sum = exampleArray[0];
-
         console.log(exampleArray);
-
         for (let i = 0; i < exampleArray.length; i++) {
           console.log(exampleArray[i + 1], {sum, num: exampleArray[i + 2]});
-          if (!exampleArray[i + 1]) return setTotal(sum.toString().slice(-1) === "%" ? +sum.slice(0, -1) / 100 : +sum);
+          if (!exampleArray[i + 1]) {
+            const output = sum.toString().slice(-1) === "%" ? +sum.slice(0, -1) / 100 : +sum;
+            setExample(output.toString());
+            setTotal(output.toString());
+            return;
+          }
+          
           sum = handleClick(exampleArray[i + 1], {sum, num: exampleArray[i + 2]});
           i++;
         }
 
-        setTotal(sum);
-        setExample("");
+        setTotal(sum.toString());
+        setExample(sum.toString());
         break;
       }
       case "AC": {
         setExample("");
         setOperation("");
         setTotal(0);
-        console.clear();
         break;
       }
       case "%": {
@@ -112,7 +115,14 @@ export const Calculator = () => {
         break;
       }
       case "DEL": {
-        setExample((prevExample) => prevExample.slice(0, -1));
+        const index = mathSymbols.findIndex((el) => el === example.at(-1));
+
+        if (index !== -1) {
+          setExample((prevExample) => prevExample.slice(0, -2));
+        } else {
+          setExample((prevExample) => prevExample.slice(0, -1));
+        }
+
         setOperation("");
         break;
       }
